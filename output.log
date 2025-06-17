@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/home/ubuntu/sistema_estoque/estoque/src/main.py", line 7, in <module>
-    from src.routes import register_routes
-  File "/home/ubuntu/sistema_estoque/estoque/src/routes/__init__.py", line 16
-    app.register_blueprint(relatorios_bp, url_prefix="/api/relatorios")
-IndentationError: unexpected indent
