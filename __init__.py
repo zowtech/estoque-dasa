@@ -1,0 +1,12 @@
+from flask import Blueprint
+from src.routes.item import item_bp
+from src.routes.local import local_bp
+from src.routes.movimentacao import movimentacao_bp
+from src.routes.dashboard import dashboard_bp
+
+def register_routes(app):
+    """Registra todas as rotas da aplicação"""
+    app.register_blueprint(item_bp, url_prefix='/api/itens')
+    app.register_blueprint(local_bp, url_prefix='/api/locais')
+    app.register_blueprint(movimentacao_bp, url_prefix='/api/movimentacoes')
+    app.register_blueprint(dashboard_bp, url_prefix='/api/dashboard')
