@@ -13,3 +13,6 @@ def init_db(app):
 from src.models.item import Item
 from src.models.local import Local
 from src.models.movimentacao import Movimentacao, TipoMovimentacao
+from src.models.evento import Evento
+from src.models.user import User
+

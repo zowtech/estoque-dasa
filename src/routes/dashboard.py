@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from src.models import db, Item, Movimentacao, Local, Evento
+from src.models import db, Item, Movimentacao, Local
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
