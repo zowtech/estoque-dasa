@@ -54,32 +54,25 @@ def get_kpis():
 def get_ranking_banheiros():
     """Retorna o ranking de consumo por banheiro baseado em dados reais"""
     try:
-        # Busca locais reais do banco
+        data_inicio = datetime.now() - timedelta(days=30)
         locais = Local.query.all()
         ranking_data = []
-        
         for local in locais:
-            # Calcula consumo real por local (últimos 30 dias)
-            data_inicio = datetime.now() - timedelta(days=30)
-            
-            # Aqui você pode implementar lógica para associar movimentações a locais
-            # Por enquanto, vamos usar dados básicos dos locais cadastrados
-            consumo = 0  # Implementar lógica de consumo por local
-            
+            # Consumo real por local (somando todas as movimentações de saída para este local)
+            consumo = db.session.query(func.sum(Movimentacao.quantidade)).filter(
+                Movimentacao.tipo == 'saida',
+                Movimentacao.local_destino_id == local.id,
+                Movimentacao.data_movimentacao >= data_inicio
+            ).scalar() or 0
             ranking_data.append({
-                'nome': local.nome,
-                'consumo': consumo,
-                'tipo': local.tipo.lower(),
-                'andar': local.andar
+                'id': local.id,
+                'descricao': local.descricao,
+                'andar': local.andar,
+                'tipo_banheiro': local.tipo_banheiro.lower(),
+                'consumo': int(consumo)
             })
-        
-        # Se não houver locais cadastrados, retorna lista vazia
-        if not ranking_data:
-            ranking_data = []
-        
         # Ordena por consumo (decrescente)
         ranking_data.sort(key=lambda x: x['consumo'], reverse=True)
-        
         return jsonify(ranking_data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
