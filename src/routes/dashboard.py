@@ -1,31 +1,45 @@
-from flask import Blueprint, jsonify
-from src.models import db, Item, Movimentacao, Local
+from flask import Blueprint, jsonify, request
+from src.models import db, Item, Movimentacao, Local, Evento
 from datetime import datetime, timedelta
-import random
+from sqlalchemy import func
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
 @dashboard_bp.route('/kpis', methods=['GET'])
 def get_kpis():
-    """Retorna os KPIs do dashboard"""
+    """Retorna os KPIs do dashboard baseados em dados reais"""
     try:
-        # Consumo total (últimos 30 dias)
+        # Consumo total (últimos 30 dias) - dados reais
         data_inicio = datetime.now() - timedelta(days=30)
-        consumo_total = db.session.query(db.func.sum(Movimentacao.quantidade)).filter(
+        consumo_total = db.session.query(func.sum(Movimentacao.quantidade)).filter(
             Movimentacao.tipo == 'saida',
             Movimentacao.data_movimentacao >= data_inicio
         ).scalar() or 0
         
-        # Produtos com estoque baixo
+        # Produtos com estoque baixo - dados reais
         produtos_estoque_baixo = Item.query.filter(
             Item.quantidade_atual <= Item.quantidade_minima
         ).count()
         
-        # Alertas críticos (estoque zerado)
+        # Alertas críticos (estoque zerado) - dados reais
         alertas_criticos = Item.query.filter(Item.quantidade_atual == 0).count()
         
-        # Redução de desperdício (simulado)
-        reducao_desperdicio = 15.2
+        # Redução de desperdício - calculado baseado em movimentações
+        total_entradas = db.session.query(func.sum(Movimentacao.quantidade)).filter(
+            Movimentacao.tipo == 'entrada',
+            Movimentacao.data_movimentacao >= data_inicio
+        ).scalar() or 0
+        
+        total_saidas = db.session.query(func.sum(Movimentacao.quantidade)).filter(
+            Movimentacao.tipo == 'saida',
+            Movimentacao.data_movimentacao >= data_inicio
+        ).scalar() or 0
+        
+        # Calcula redução de desperdício (se houver dados)
+        if total_entradas > 0:
+            reducao_desperdicio = round(((total_entradas - total_saidas) / total_entradas) * 100, 1)
+        else:
+            reducao_desperdicio = 0
         
         return jsonify({
             'consumo_total': int(consumo_total),
@@ -38,16 +52,33 @@ def get_kpis():
 
 @dashboard_bp.route('/ranking-banheiros', methods=['GET'])
 def get_ranking_banheiros():
-    """Retorna o ranking de consumo por banheiro"""
+    """Retorna o ranking de consumo por banheiro baseado em dados reais"""
     try:
-        # Dados simulados para demonstração
-        ranking_data = [
-            {'nome': 'Banheiro Masculino - 1º Andar', 'consumo': 245, 'tipo': 'masculino'},
-            {'nome': 'Banheiro Feminino - 2º Andar', 'consumo': 198, 'tipo': 'feminino'},
-            {'nome': 'Banheiro Masculino - 3º Andar', 'consumo': 187, 'tipo': 'masculino'},
-            {'nome': 'Banheiro Feminino - 1º Andar', 'consumo': 156, 'tipo': 'feminino'},
-            {'nome': 'Banheiro Masculino - 2º Andar', 'consumo': 134, 'tipo': 'masculino'}
-        ]
+        # Busca locais reais do banco
+        locais = Local.query.all()
+        ranking_data = []
+        
+        for local in locais:
+            # Calcula consumo real por local (últimos 30 dias)
+            data_inicio = datetime.now() - timedelta(days=30)
+            
+            # Aqui você pode implementar lógica para associar movimentações a locais
+            # Por enquanto, vamos usar dados básicos dos locais cadastrados
+            consumo = 0  # Implementar lógica de consumo por local
+            
+            ranking_data.append({
+                'nome': local.nome,
+                'consumo': consumo,
+                'tipo': local.tipo.lower(),
+                'andar': local.andar
+            })
+        
+        # Se não houver locais cadastrados, retorna lista vazia
+        if not ranking_data:
+            ranking_data = []
+        
+        # Ordena por consumo (decrescente)
+        ranking_data.sort(key=lambda x: x['consumo'], reverse=True)
         
         return jsonify(ranking_data)
     except Exception as e:
@@ -55,16 +86,19 @@ def get_ranking_banheiros():
 
 @dashboard_bp.route('/produtos-mais-consumidos', methods=['GET'])
 def get_produtos_mais_consumidos():
-    """Retorna os produtos mais consumidos"""
+    """Retorna os produtos mais consumidos baseado em dados reais"""
     try:
-        # Consulta real dos produtos mais consumidos
+        # Consulta real dos produtos mais consumidos (últimos 30 dias)
+        data_inicio = datetime.now() - timedelta(days=30)
+        
         produtos_consumidos = db.session.query(
             Item.nome,
-            db.func.sum(Movimentacao.quantidade).label('total_consumido')
+            func.sum(Movimentacao.quantidade).label('total_consumido')
         ).join(Movimentacao).filter(
-            Movimentacao.tipo == 'saida'
+            Movimentacao.tipo == 'saida',
+            Movimentacao.data_movimentacao >= data_inicio
         ).group_by(Item.id).order_by(
-            db.func.sum(Movimentacao.quantidade).desc()
+            func.sum(Movimentacao.quantidade).desc()
         ).limit(5).all()
         
         produtos_data = []
@@ -74,17 +108,34 @@ def get_produtos_mais_consumidos():
                 'consumo': int(produto.total_consumido)
             })
         
-        # Se não houver dados, retorna dados simulados
-        if not produtos_data:
-            produtos_data = [
-                {'nome': 'Papel Higiênico', 'consumo': 450},
-                {'nome': 'Sabonete Líquido', 'consumo': 320},
-                {'nome': 'Papel Toalha', 'consumo': 280},
-                {'nome': 'Álcool em Gel', 'consumo': 210},
-                {'nome': 'Desinfetante', 'consumo': 180}
-            ]
-        
         return jsonify(produtos_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@dashboard_bp.route('/consumo-por-periodo', methods=['GET'])
+def get_consumo_por_periodo():
+    """Retorna dados de consumo por período para gráficos"""
+    try:
+        periodo = request.args.get('periodo', '30')  # dias
+        data_inicio = datetime.now() - timedelta(days=int(periodo))
+        
+        # Consulta consumo por dia
+        consumo_diario = db.session.query(
+            func.date(Movimentacao.data_movimentacao).label('data'),
+            func.sum(Movimentacao.quantidade).label('total')
+        ).filter(
+            Movimentacao.tipo == 'saida',
+            Movimentacao.data_movimentacao >= data_inicio
+        ).group_by(func.date(Movimentacao.data_movimentacao)).all()
+        
+        dados_grafico = []
+        for registro in consumo_diario:
+            dados_grafico.append({
+                'data': registro.data.strftime('%Y-%m-%d'),
+                'consumo': int(registro.total)
+            })
+        
+        return jsonify(dados_grafico)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
