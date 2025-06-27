@@ -21,20 +21,20 @@ class KpiDashboard {
         <div class="kpi-header">
           <h3>Visão Geral do Consumo</h3>
           <div class="kpi-actions">
-            <button class="btn btn-sm btn-outline-primary" id="refresh-kpi-btn">
+            <button class="btn btn-sm btn-outline-primary" id="refresh-kpi-btn" title="Atualizar os KPIs do dashboard" aria-label="Atualizar KPIs" tabindex="0">
               <i class="fas fa-sync-alt"></i> Atualizar
             </button>
           </div>
         </div>
         
         <div class="kpi-grid">
-          <div class="kpi-card" id="kpi-consumo-total">
+          <div class="kpi-card" id="kpi-consumo-total" title="Total de produtos consumidos em todos os banheiros no período selecionado." aria-label="Consumo Total" tabindex="0">
             <div class="kpi-card-inner">
               <div class="kpi-icon">
                 <i class="fas fa-chart-line"></i>
               </div>
               <div class="kpi-content">
-                <h4>Consumo Total</h4>
+                <h4>Consumo Total <i class='fas fa-info-circle' title='Soma de todas as saídas de produtos no período.'></i></h4>
                 <div class="kpi-value">
                   <span class="value">--</span>
                   <span class="unit">unidades</span>
@@ -47,13 +47,13 @@ class KpiDashboard {
             </div>
           </div>
           
-          <div class="kpi-card" id="kpi-desperdicio">
+          <div class="kpi-card" id="kpi-desperdicio" title="Percentual de produtos desperdiçados em relação ao total de entradas." aria-label="Desperdício" tabindex="0">
             <div class="kpi-card-inner">
               <div class="kpi-icon">
                 <i class="fas fa-trash-alt"></i>
               </div>
               <div class="kpi-content">
-                <h4>Desperdício</h4>
+                <h4>Desperdício <i class='fas fa-info-circle' title='Percentual de produtos descartados ou perdidos.'></i></h4>
                 <div class="kpi-value">
                   <span class="value">--</span>
                   <span class="unit">%</span>
@@ -66,16 +66,16 @@ class KpiDashboard {
             </div>
           </div>
           
-          <div class="kpi-card" id="kpi-economia-potencial">
+          <div class="kpi-card" id="kpi-economia-potencial" title="Quantidade de produtos que poderiam ser economizados com redução do desperdício." aria-label="Economia Potencial" tabindex="0">
             <div class="kpi-card-inner">
               <div class="kpi-icon">
                 <i class="fas fa-piggy-bank"></i>
               </div>
               <div class="kpi-content">
-                <h4>Economia Potencial</h4>
+                <h4>Economia Potencial <i class='fas fa-info-circle' title='Produtos que poderiam ser economizados se o desperdício fosse reduzido.'></i></h4>
                 <div class="kpi-value">
                   <span class="value">--</span>
-                  <span class="unit">R$</span>
+                  <span class="unit">unidades</span>
                 </div>
                 <div class="kpi-trend">
                   <span class="trend-icon"><i class="fas fa-arrow-up"></i></span>
@@ -85,13 +85,13 @@ class KpiDashboard {
             </div>
           </div>
           
-          <div class="kpi-card" id="kpi-produtos-criticos">
+          <div class="kpi-card" id="kpi-produtos-criticos" title="Quantidade de produtos com estoque baixo ou crítico." aria-label="Produtos Críticos" tabindex="0">
             <div class="kpi-card-inner">
               <div class="kpi-icon">
                 <i class="fas fa-exclamation-triangle"></i>
               </div>
               <div class="kpi-content">
-                <h4>Produtos Críticos</h4>
+                <h4>Produtos Críticos <i class='fas fa-info-circle' title='Produtos que estão com estoque baixo ou zerado.'></i></h4>
                 <div class="kpi-value">
                   <span class="value">--</span>
                   <span class="unit">itens</span>
@@ -109,7 +109,7 @@ class KpiDashboard {
           <div class="alerts-header">
             <h3>Alertas de Estoque</h3>
             <div class="alerts-actions">
-              <button class="btn btn-sm btn-outline-secondary" id="view-all-alerts-btn">
+              <button class="btn btn-sm btn-outline-secondary" id="view-all-alerts-btn" aria-label="Ver todos os alertas" tabindex="0">
                 Ver Todos
               </button>
             </div>
@@ -356,89 +356,72 @@ class KpiDashboard {
   }
   
   async loadKpiData() {
-    // Simular carregamento de dados
-    console.log("Carregando dados de KPI...");
-    
-    return new Promise(resolve => {
-      setTimeout(() => {
-        // Dados fictícios para KPIs
-        this.kpiData = {
-          consumoTotal: {
-            valor: 1248,
-            unidade: 'unidades',
-            tendencia: 8.5,
-            tendenciaPositiva: true
-          },
-          desperdicio: {
-            valor: 12.3,
-            unidade: '%',
-            tendencia: 2.1,
-            tendenciaPositiva: false
-          },
-          economiaPotencial: {
-            valor: 504,
-            unidade: 'R$',
-            tendencia: 15.2,
-            tendenciaPositiva: true
-          },
-          produtosCriticos: {
-            valor: 3,
-            unidade: 'itens',
-            tendencia: 1,
-            tendenciaPositiva: false
-          }
-        };
-        
-        // Dados fictícios para alertas
-        this.alertsData = [
-          {
-            id: 1,
-            tipo: 'critical',
-            titulo: 'Papel Higiênico - Estoque Crítico',
-            descricao: 'Restam apenas 15 unidades (2 dias de consumo)',
-            data: new Date(),
-            lido: false
-          },
-          {
-            id: 2,
-            tipo: 'warning',
-            titulo: 'Sabonete Líquido - Estoque Baixo',
-            descricao: 'Restam 30 unidades (5 dias de consumo)',
-            data: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 dia atrás
-            lido: false
-          },
-          {
-            id: 3,
-            tipo: 'critical',
-            titulo: 'Papel Toalha - Estoque Crítico',
-            descricao: 'Restam apenas 10 unidades (1 dia de consumo)',
-            data: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 dias atrás
-            lido: true
-          },
-          {
-            id: 4,
-            tipo: 'info',
-            titulo: 'Álcool em Gel - Consumo Acima da Média',
-            descricao: 'Consumo 30% maior que a média no Andar 3',
-            data: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 dias atrás
-            lido: false
-          },
-          {
-            id: 5,
-            tipo: 'warning',
-            titulo: 'Desinfetante - Estoque Baixo',
-            descricao: 'Restam 5 unidades (7 dias de consumo)',
-            data: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 dias atrás
-            lido: true
-          }
-        ];
-        
-        this.renderKpis();
-        this.renderAlerts();
-        
-        resolve({ kpis: this.kpiData, alerts: this.alertsData });
-      }, 800);
-    });
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/kpis`);
+      const data = await response.json();
+      this.kpiData = {
+        consumoTotal: {
+          valor: data.consumo_total || 0,
+          unidade: 'unidades',
+          tendencia: 0, // implementar cálculo de tendência se necessário
+          tendenciaPositiva: true
+        },
+        desperdicio: {
+          valor: data.percentual_desperdicio || 0,
+          unidade: '%',
+          tendencia: 0, // implementar cálculo de tendência se necessário
+          tendenciaPositiva: false
+        },
+        economiaPotencial: {
+          valor: data.total_desperdicio || 0, // pode ser ajustado para economia real
+          unidade: 'unidades',
+          tendencia: 0,
+          tendenciaPositiva: true
+        },
+        produtosCriticos: {
+          valor: data.produtos_estoque_baixo || 0,
+          unidade: 'itens',
+          tendencia: 0,
+          tendenciaPositiva: false
+        }
+      };
+      // Alertas automáticos de desperdício
+      this.alertsData = [];
+      if (data.percentual_desperdicio && data.percentual_desperdicio >= 20) {
+        this.alertsData.push({
+          id: 1000,
+          tipo: 'critical',
+          titulo: 'Desperdício Elevado',
+          descricao: `O desperdício global está em ${data.percentual_desperdicio}%. Recomenda-se ação imediata, como treinamento e revisão de processos.`,
+          data: new Date(),
+          lido: false
+        });
+      }
+      if (data.local_mais_desperdicio) {
+        this.alertsData.push({
+          id: 1001,
+          tipo: 'warning',
+          titulo: 'Área Crítica de Desperdício',
+          descricao: `O local com maior desperdício é: ${data.local_mais_desperdicio}. Avalie ações corretivas.`,
+          data: new Date(),
+          lido: false
+        });
+      }
+      if (data.produto_mais_desperdicado) {
+        this.alertsData.push({
+          id: 1002,
+          tipo: 'info',
+          titulo: 'Produto Mais Desperdiçado',
+          descricao: `Atenção ao produto: ${data.produto_mais_desperdicado}. Considere revisar o uso ou dispenser.`,
+          data: new Date(),
+          lido: false
+        });
+      }
+      this.renderKpis();
+      this.renderAlerts();
+    } catch (error) {
+      console.error('Erro ao carregar KPIs:', error);
+    }
   }
   
   renderKpis() {
@@ -628,6 +611,8 @@ class KpiDashboard {
       modal.tabIndex = -1;
       modal.setAttribute('aria-labelledby', 'alertsModalLabel');
       modal.setAttribute('aria-hidden', 'true');
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
       
       modal.innerHTML = `
         <div class="modal-dialog modal-lg">
@@ -740,6 +725,16 @@ class KpiDashboard {
     // Mostrar o modal
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
+    // Foco automático
+    setTimeout(() => { modal.focus(); }, 200);
+    // Fechar por ESC
+    const escHandler = (e) => {
+      if (e.key === 'Escape') {
+        bsModal.hide();
+        document.removeEventListener('keydown', escHandler);
+      }
+    };
+    document.addEventListener('keydown', escHandler);
   }
   
   renderModalAlerts(filterType, showRead) {

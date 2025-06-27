@@ -20,17 +20,20 @@ class ReportGenerator {
       <div class="report-container">
         <div class="report-header">
           <h2 class="mb-4">Gerador de Relatórios</h2>
-          <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
             <div class="btn-group report-type-toggle" role="group">
-              <button type="button" class="btn btn-primary active" data-report="consumo">Consumo</button>
-              <button type="button" class="btn btn-primary" data-report="desperdicio">Desperdício</button>
-              <button type="button" class="btn btn-primary" data-report="comparativo">Comparativo</button>
+              <button type="button" class="btn btn-primary active" data-report="consumo" title="Visualize o consumo por andar, produto e tipo de banheiro" aria-label="Relatório de Consumo" tabindex="0">Consumo</button>
+              <button type="button" class="btn btn-primary" data-report="desperdicio" title="Veja onde há mais desperdício e oportunidades de economia" aria-label="Relatório de Desperdício" tabindex="0">Desperdício</button>
+              <button type="button" class="btn btn-primary" data-report="comparativo" title="Compare períodos, andares e gêneros" aria-label="Relatório Comparativo" tabindex="0">Comparativo</button>
             </div>
-            <div class="report-actions">
-              <button id="export-report-btn" class="btn btn-outline-primary">
-                <i class="fas fa-file-export"></i> Exportar
+            <div class="report-actions mt-2 mt-md-0">
+              <button id="export-csv-btn" class="btn btn-outline-success" title="Exportar tabela para CSV" aria-label="Exportar CSV" tabindex="0">
+                <i class="fas fa-file-csv"></i> Exportar CSV
               </button>
-              <button id="print-report-btn" class="btn btn-outline-secondary">
+              <button id="export-pdf-btn" class="btn btn-outline-danger" title="Exportar relatório para PDF" aria-label="Exportar PDF" tabindex="0">
+                <i class="fas fa-file-pdf"></i> Exportar PDF
+              </button>
+              <button id="print-report-btn" class="btn btn-outline-secondary" title="Imprimir relatório" aria-label="Imprimir relatório" tabindex="0">
                 <i class="fas fa-print"></i> Imprimir
               </button>
             </div>
@@ -38,12 +41,12 @@ class ReportGenerator {
           <div class="report-filter mb-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">Filtros</h5>
-                <div class="row">
-                  <div class="col-md-4">
+                <h5 class="card-title">Filtros <i class='fas fa-info-circle' title='Use os filtros para refinar o relatório conforme sua necessidade.'></i></h5>
+                <div class="row g-2">
+                  <div class="col-12 col-md-3">
                     <div class="form-group">
-                      <label for="period-select">Período</label>
-                      <select class="form-control" id="period-select">
+                      <label for="period-select">Período <i class='fas fa-question-circle' title='Escolha o intervalo de tempo para o relatório.'></i></label>
+                      <select class="form-control" id="period-select" aria-label="Selecionar período" tabindex="0">
                         <option value="7">Últimos 7 dias</option>
                         <option value="30" selected>Últimos 30 dias</option>
                         <option value="90">Últimos 90 dias</option>
@@ -53,35 +56,52 @@ class ReportGenerator {
                       </select>
                     </div>
                   </div>
-                  <div class="col-md-6 custom-date-range d-none">
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label for="start-date">Data Inicial</label>
-                          <input type="date" class="form-control" id="start-date">
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="form-group">
-                          <label for="end-date">Data Final</label>
-                          <input type="date" class="form-control" id="end-date">
-                        </div>
-                      </div>
+                  <div class="col-12 col-md-3">
+                    <div class="form-group">
+                      <label for="product-select">Produto <i class='fas fa-question-circle' title='Filtre por produto específico ou veja todos.'></i></label>
+                      <select class="form-control" id="product-select" aria-label="Selecionar produto" tabindex="0">
+                        <option value="all">Todos</option>
+                        <option value="papel">Papel Higiênico</option>
+                        <option value="sabonete">Sabonete Líquido</option>
+                        <option value="toalha">Papel Toalha</option>
+                        <option value="alcool">Álcool em Gel</option>
+                        <option value="desinfetante">Desinfetante</option>
+                      </select>
                     </div>
                   </div>
-                  <div class="col-md-2">
+                  <div class="col-12 col-md-3">
                     <div class="form-group">
-                      <label class="d-block">&nbsp;</label>
-                      <button id="apply-filter-btn" class="btn btn-primary">Aplicar</button>
+                      <label for="andar-select">Andar <i class='fas fa-question-circle' title='Selecione um andar específico ou todos.'></i></label>
+                      <select class="form-control" id="andar-select" aria-label="Selecionar andar" tabindex="0">
+                        <option value="all">Todos</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                      </select>
                     </div>
+                  </div>
+                  <div class="col-12 col-md-2">
+                    <div class="form-group">
+                      <label for="tipo-banheiro-select">Tipo de Banheiro <i class='fas fa-question-circle' title='Filtre por gênero do banheiro.'></i></label>
+                      <select class="form-control" id="tipo-banheiro-select" aria-label="Selecionar tipo de banheiro" tabindex="0">
+                        <option value="all">Todos</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="feminino">Feminino</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-1 d-flex align-items-end">
+                    <button id="apply-filter-btn" class="btn btn-primary w-100" title="Aplicar filtros ao relatório" aria-label="Aplicar filtros" tabindex="0">Aplicar</button>
                   </div>
                 </div>
                 <div class="row mt-2">
                   <div class="col-md-4">
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="compare-previous">
+                      <input class="form-check-input" type="checkbox" id="compare-previous" aria-label="Comparar com período anterior" tabindex="0">
                       <label class="form-check-label" for="compare-previous">
-                        Comparar com período anterior
+                        Comparar com período anterior <i class='fas fa-question-circle' title='Compare os dados atuais com o período anterior.'></i>
                       </label>
                     </div>
                   </div>
@@ -301,216 +321,20 @@ class ReportGenerator {
   }
 
   async loadReportData(filterData = null) {
-    // Mostrar loading
+    // Chamar a API passando os filtros
+    let url = this.apiBaseUrl + '?';
+    if (filterData) {
+      url += Object.entries(filterData).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
+    }
     this.toggleLoading(true);
-    
-    // Usar filtro padrão se nenhum for passado
-    const currentFilter = filterData || this.filterComponent?.getCurrentFilter().data || { period: 30 };
-    
-    // Simular carregamento de dados com base no filtro
-    console.log("Carregando dados de relatório com filtro:", currentFilter);
-    
-    return new Promise(resolve => {
-      setTimeout(() => {
-        // Dados fictícios para relatórios
-        this.reportData = {
-          consumo: {
-            porAndar: [
-              { nome: 'Andar 5', valor: 356, percentual: 28 },
-              { nome: 'Andar 3', valor: 310, percentual: 24 },
-              { nome: 'Andar 1', valor: 160, percentual: 13 },
-              { nome: 'Andar 4', valor: 245, percentual: 19 },
-              { nome: 'Andar 2', valor: 177, percentual: 16 }
-            ],
-            porTipo: [
-              { nome: 'Feminino', valor: 653, percentual: 52 },
-              { nome: 'Masculino', valor: 595, percentual: 48 }
-            ],
-            porProduto: [
-              { 
-                nome: 'Papel Higiênico', 
-                total: 580, 
-                masculino: 270, 
-                feminino: 310, 
-                mediaPorAndar: 116,
-                tendencia: 5.2,
-                tendenciaPositiva: true
-              },
-              { 
-                nome: 'Sabonete Líquido', 
-                total: 320, 
-                masculino: 150, 
-                feminino: 170, 
-                mediaPorAndar: 64,
-                tendencia: 3.8,
-                tendenciaPositiva: true
-              },
-              { 
-                nome: 'Papel Toalha', 
-                total: 240, 
-                masculino: 120, 
-                feminino: 120, 
-                mediaPorAndar: 48,
-                tendencia: -1.5,
-                tendenciaPositiva: false
-              },
-              { 
-                nome: 'Álcool em Gel', 
-                total: 80, 
-                masculino: 40, 
-                feminino: 40, 
-                mediaPorAndar: 16,
-                tendencia: 0,
-                tendenciaPositiva: null
-              },
-              { 
-                nome: 'Desinfetante', 
-                total: 28, 
-                masculino: 15, 
-                feminino: 13, 
-                mediaPorAndar: 5.6,
-                tendencia: -2.3,
-                tendenciaPositiva: false
-              }
-            ],
-            tendencia: {
-              labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-              datasets: [
-                { nome: 'Papel Higiênico', valores: [520, 540, 560, 550, 570, 580] },
-                { nome: 'Sabonete Líquido', valores: [300, 310, 305, 315, 310, 320] },
-                { nome: 'Papel Toalha', valores: [250, 245, 240, 235, 230, 240] },
-                { nome: 'Álcool em Gel', valores: [80, 80, 80, 80, 80, 80] },
-                { nome: 'Desinfetante', valores: [30, 29, 28, 27, 28, 28] }
-              ]
-            }
-          },
-          desperdicio: {
-            porAndar: [
-              { nome: 'Andar 5', valor: 15.2, economia: 54 },
-              { nome: 'Andar 3', valor: 12.8, economia: 40 },
-              { nome: 'Andar 1', valor: 8.5, economia: 14 },
-              { nome: 'Andar 4', valor: 10.3, economia: 25 },
-              { nome: 'Andar 2', valor: 9.7, economia: 17 }
-            ],
-            economia: {
-              atual: 150,
-              potencial: 250,
-              percentual: 60
-            },
-            porProduto: [
-              { 
-                nome: 'Papel Higiênico', 
-                desperdicio: 87, 
-                percentual: 15, 
-                economia: 130,
-                recomendacao: 'Instalar dispensers com controle de quantidade'
-              },
-              { 
-                nome: 'Sabonete Líquido', 
-                desperdicio: 32, 
-                percentual: 10, 
-                economia: 48,
-                recomendacao: 'Utilizar dispensers com sensor'
-              },
-              { 
-                nome: 'Papel Toalha', 
-                desperdicio: 36, 
-                percentual: 15, 
-                economia: 54,
-                recomendacao: 'Substituir por secadores de mão'
-              },
-              { 
-                nome: 'Álcool em Gel', 
-                desperdicio: 8, 
-                percentual: 10, 
-                economia: 12,
-                recomendacao: 'Utilizar dispensers com dosagem controlada'
-              },
-              { 
-                nome: 'Desinfetante', 
-                desperdicio: 4, 
-                percentual: 14, 
-                economia: 6,
-                recomendacao: 'Treinar equipe de limpeza sobre dosagem correta'
-              }
-            ],
-            causas: [
-              { nome: 'Uso excessivo', valor: 45 },
-              { nome: 'Dispensers inadequados', valor: 30 },
-              { nome: 'Falta de conscientização', valor: 15 },
-              { nome: 'Produtos de baixa qualidade', valor: 10 }
-            ]
-          },
-          comparativo: {
-            periodos: {
-              atual: 1248,
-              anterior: 1150,
-              variacao: 8.5,
-              variacaoPositiva: true
-            },
-            genero: {
-              masculinoAtual: 595,
-              femininoAtual: 653,
-              masculinoAnterior: 550,
-              femininoAnterior: 600
-            },
-            porAndar: [
-              {
-                andar: 'Andar 5',
-                periodoAtual: 356,
-                periodoAnterior: 320,
-                variacao: 11.2,
-                masculinoAtual: 170,
-                femininoAtual: 186
-              },
-              {
-                andar: 'Andar 3',
-                periodoAtual: 310,
-                periodoAnterior: 290,
-                variacao: 6.9,
-                masculinoAtual: 150,
-                femininoAtual: 160
-              },
-              {
-                andar: 'Andar 1',
-                periodoAtual: 160,
-                periodoAnterior: 155,
-                variacao: 3.2,
-                masculinoAtual: 75,
-                femininoAtual: 85
-              },
-              {
-                andar: 'Andar 4',
-                periodoAtual: 245,
-                periodoAnterior: 230,
-                variacao: 6.5,
-                masculinoAtual: 120,
-                femininoAtual: 125
-              },
-              { 
-                andar: 'Andar 2',
-                periodoAtual: 177,
-                periodoAnterior: 165,
-                variacao: 7.3,
-                masculinoAtual: 80,
-                femininoAtual: 97
-              }
-            ],
-            sazonalidade: {
-              labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-              datasets: [
-                { nome: '2024', valores: [1200, 1300, 1100, 1400] },
-                { nome: '2025', valores: [1250, 1350, 1150, 1450] }
-              ]
-            }
-          }
-        };
-        
-        this.renderReport();
-        this.toggleLoading(false);
-        resolve(this.reportData);
-      }, 800);
-    });
+    try {
+      const response = await fetch(url);
+      this.reportData = await response.json();
+      this.renderReport();
+    } catch (error) {
+      this.showError('Erro ao carregar dados do relatório.');
+    }
+    this.toggleLoading(false);
   }
 
   renderReport() {
@@ -874,12 +698,16 @@ class ReportGenerator {
     });
 
     // Event listeners para exportar e imprimir (implementação futura)
-    document.getElementById("export-report-btn").addEventListener("click", () => {
-      alert("Funcionalidade de Exportar em desenvolvimento!");
+    document.getElementById("export-csv-btn").addEventListener("click", () => {
+      this.exportToCSV();
     });
 
+    document.getElementById("export-pdf-btn").addEventListener("click", () => {
+      this.exportToPDF();
+    });
+    
     document.getElementById("print-report-btn").addEventListener("click", () => {
-      alert("Funcionalidade de Imprimir em desenvolvimento!");
+      window.print();
     });
     
     // Event listener para o seletor de período
@@ -894,29 +722,53 @@ class ReportGenerator {
     
     // Event listener para o botão de aplicar filtro
     document.getElementById("apply-filter-btn").addEventListener("click", () => {
-      const periodSelect = document.getElementById("period-select");
-      const startDate = document.getElementById("start-date").value;
-      const endDate = document.getElementById("end-date").value;
-      const compareWithPrevious = document.getElementById("compare-previous").checked;
-      
-      let filterData = {
-        compareWithPrevious
-      };
-      
-      if (periodSelect.value === "custom") {
-        if (startDate && endDate) {
-          filterData.startDate = startDate;
-          filterData.endDate = endDate;
-        } else {
-          alert("Por favor, selecione datas válidas para o período personalizado.");
-          return;
-        }
-      } else {
-        filterData.period = parseInt(periodSelect.value);
-      }
-      
-      this.loadReportData(filterData);
+      this.loadReportData(this.getCurrentFilters());
     });
+  }
+
+  getCurrentFilters() {
+    return {
+      periodo: document.getElementById('period-select').value,
+      produto: document.getElementById('product-select').value,
+      andar: document.getElementById('andar-select').value,
+      tipoBanheiro: document.getElementById('tipo-banheiro-select').value,
+      comparar: document.getElementById('compare-previous').checked
+    };
+  }
+
+  exportToCSV() {
+    // Exportar tabela visível para CSV
+    const table = this.container.querySelector('.report-section:not(.d-none) table');
+    if (!table) return alert('Nenhuma tabela encontrada para exportar.');
+    let csv = '';
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cols = Array.from(row.querySelectorAll('th,td')).map(col => '"' + col.innerText.replace(/"/g, '""') + '"');
+      csv += cols.join(',') + '\n';
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'relatorio.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  exportToPDF() {
+    // Exportar tabela visível para PDF (usando print simplificado)
+    const section = this.container.querySelector('.report-section:not(.d-none)');
+    if (!section) return alert('Nenhum relatório encontrado para exportar.');
+    const printWindow = window.open('', '', 'width=900,height=700');
+    printWindow.document.write('<html><head><title>Relatório</title>');
+    printWindow.document.write('<link rel="stylesheet" href="/static/css/reports.css">');
+    printWindow.document.write('</head><body >');
+    printWindow.document.write(section.innerHTML);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
   }
 }
 

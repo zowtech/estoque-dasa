@@ -14,11 +14,11 @@ def get_movimentacoes():
             movimentacoes_data.append({
                 'id': mov.id,
                 'item_id': mov.item_id,
-                'item_nome': mov.item.nome if mov.item else 'Item não encontrado',
+                'item_nome': mov.item.nome if hasattr(mov, 'item') and mov.item else 'Item não encontrado',
                 'tipo': mov.tipo,
                 'quantidade': mov.quantidade,
                 'data_movimentacao': mov.data_movimentacao.isoformat(),
-                'observacoes': mov.observacoes
+                'observacao': getattr(mov, 'observacao', '')
             })
         return jsonify(movimentacoes_data)
     except Exception as e:
@@ -26,29 +26,39 @@ def get_movimentacoes():
 
 @movimentacao_bp.route('/', methods=['POST'])
 def create_movimentacao():
-    """Registra uma nova movimentação"""
+    """Registra uma nova movimentação (entrada, saída ou desperdício)"""
     try:
         data = request.get_json()
         
         # Busca o item
         item = Item.query.get_or_404(data['item_id'])
         
+        tipo = data['tipo']
+        quantidade = data['quantidade']
+        observacao = data.get('observacao', '')
+        local_origem_id = data.get('local_origem_id')
+        local_destino_id = data.get('local_destino_id')
+
         # Cria a movimentação
         new_movimentacao = Movimentacao(
             item_id=data['item_id'],
-            tipo=data['tipo'],  # 'entrada' ou 'saida'
-            quantidade=data['quantidade'],
-            observacoes=data.get('observacoes', '')
+            tipo=tipo,  # 'entrada', 'saida' ou 'desperdicio'
+            quantidade=quantidade,
+            observacao=observacao,
+            local_origem_id=local_origem_id,
+            local_destino_id=local_destino_id
         )
         
         # Atualiza a quantidade do item
-        if data['tipo'] == 'entrada':
-            item.quantidade_atual += data['quantidade']
-        elif data['tipo'] == 'saida':
-            if item.quantidade_atual >= data['quantidade']:
-                item.quantidade_atual -= data['quantidade']
+        if tipo == 'entrada':
+            item.quantidade += quantidade
+        elif tipo in ['saida', 'desperdicio']:
+            if item.quantidade >= quantidade:
+                item.quantidade -= quantidade
             else:
                 return jsonify({'error': 'Quantidade insuficiente em estoque'}), 400
+        else:
+            return jsonify({'error': 'Tipo de movimentação inválido'}), 400
         
         db.session.add(new_movimentacao)
         db.session.commit()

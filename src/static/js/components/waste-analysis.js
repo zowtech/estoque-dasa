@@ -727,6 +727,8 @@ class WasteAnalysis {
       this.renderWastePorProdutoChart();
       this.renderWasteGeneroChart();
       this.renderWasteTendenciaChart();
+      // Renderizar plano de ação
+      this.renderActionPlan();
     } catch (error) {
       console.error('Erro ao carregar dados de desperdício:', error);
       this.showError('Não foi possível carregar os dados de desperdício. Tente novamente mais tarde.');
@@ -734,37 +736,17 @@ class WasteAnalysis {
   }
   
   async loadWastePorAndarData() {
-    // Simular carregamento de dados
-    return new Promise(resolve => {
-      setTimeout(() => {
-        this.wastePorAndarData = [
-          { andar: 1, desperdicio: 9.7 },
-          { andar: 2, desperdicio: 14.2 },
-          { andar: 3, desperdicio: 18.3 },
-          { andar: 4, desperdicio: 15.5 },
-          { andar: 5, desperdicio: 20.6 }
-        ];
-        
-        resolve(this.wastePorAndarData);
-      }, 300);
-    });
+    const response = await fetch('/api/dashboard/ranking-desperdicio-banheiros');
+    const data = await response.json();
+    this.wastePorAndarData = data.map(item => ({ andar: item.andar, desperdicio: item.desperdicio }));
+    return this.wastePorAndarData;
   }
   
   async loadWastePorProdutoData() {
-    // Simular carregamento de dados
-    return new Promise(resolve => {
-      setTimeout(() => {
-        this.wastePorProdutoData = [
-          { nome: 'Papel Higiênico', desperdicio: 18.5 },
-          { nome: 'Sabonete Líquido', desperdicio: 12.3 },
-          { nome: 'Papel Toalha', desperdicio: 15.8 },
-          { nome: 'Álcool em Gel', desperdicio: 8.2 },
-          { nome: 'Desinfetante', desperdicio: 5.4 }
-        ];
-        
-        resolve(this.wastePorProdutoData);
-      }, 300);
-    });
+    const response = await fetch('/api/dashboard/produtos-mais-desperdicados');
+    const data = await response.json();
+    this.wastePorProdutoData = data.map(item => ({ nome: item.nome, desperdicio: item.desperdicio }));
+    return this.wastePorProdutoData;
   }
   
   async loadWasteGeneroData() {
@@ -783,21 +765,13 @@ class WasteAnalysis {
   }
   
   async loadWasteTendenciaData() {
-    // Simular carregamento de dados
-    return new Promise(resolve => {
-      setTimeout(() => {
-        // Gerar dados para os últimos 6 meses
-        const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-        const desperdicio = [12.5, 13.2, 14.8, 15.3, 15.8, 15.2];
-        
-        this.wasteTendenciaData = {
-          meses,
-          desperdicio
-        };
-        
-        resolve(this.wasteTendenciaData);
-      }, 300);
-    });
+    const response = await fetch('/api/dashboard/consumo-e-desperdicio-por-periodo');
+    const data = await response.json();
+    // Exemplo de transformação para tendência mensal
+    const meses = data.map(item => item.data);
+    const desperdicio = data.map(item => item.desperdicio);
+    this.wasteTendenciaData = { meses, desperdicio };
+    return this.wasteTendenciaData;
   }
   
   renderWastePorAndarChart() {
@@ -1073,6 +1047,43 @@ class WasteAnalysis {
         }
       }
     });
+  }
+  
+  renderActionPlan() {
+    // Exemplo: sugerir ações para andares com desperdício acima de 20%
+    const criticalFloors = (this.wastePorAndarData || []).filter(item => item.desperdicio >= 20);
+    const container = this.container.querySelector('.waste-action-plan');
+    if (!container) return;
+    if (criticalFloors.length === 0) {
+      container.innerHTML = '<p class="text-success">Nenhuma área crítica de desperdício detectada no momento.</p>';
+      return;
+    }
+    container.innerHTML = '<h3>Plano de Ação para Redução de Desperdício</h3>' +
+      criticalFloors.map(item => `
+        <div class="action-card">
+          <div class="action-card-header">
+            <h4>Andar ${item.andar} - Desperdício ${item.desperdicio}%</h4>
+            <span class="action-priority high">Alta Prioridade</span>
+          </div>
+          <div class="action-card-body">
+            <p>Recomenda-se implementar treinamento de conscientização e instalar dispensers controlados neste andar para reduzir o desperdício.</p>
+            <div class="action-metrics">
+              <div class="action-metric">
+                <span class="metric-label">Meta de redução:</span>
+                <span class="metric-value">-30% desperdício</span>
+              </div>
+              <div class="action-metric">
+                <span class="metric-label">Economia estimada:</span>
+                <span class="metric-value">R$ ${(item.desperdicio * 50).toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="action-card-footer">
+            <button class="btn btn-sm btn-primary">Implementar</button>
+            <button class="btn btn-sm btn-outline-secondary">Detalhes</button>
+          </div>
+        </div>
+      `).join('');
   }
   
   setupEventListeners() {

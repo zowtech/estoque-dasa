@@ -23,37 +23,37 @@ class InteractiveDashboard {
               <i class="fas fa-toilet"></i>
               <span>Sistema de Controle de Banheiros</span>
             </div>
-            <button id="toggle-sidebar" class="toggle-sidebar">
+            <button id="toggle-sidebar" class="toggle-sidebar" aria-label="Alternar menu lateral" tabindex="0">
               <i class="fas fa-bars"></i>
             </button>
           </div>
           
           <div class="sidebar-menu">
-            <a href="#dashboard" class="menu-item active" data-section="dashboard">
+            <a href="#dashboard" class="menu-item active" data-section="dashboard" aria-label="Dashboard" tabindex="0">
               <i class="fas fa-tachometer-alt"></i>
               <span>Dashboard</span>
             </a>
-            <a href="#ranking" class="menu-item" data-section="ranking">
+            <a href="#ranking" class="menu-item" data-section="ranking" aria-label="Ranking" tabindex="0">
               <i class="fas fa-trophy"></i>
               <span>Ranking</span>
             </a>
-            <a href="#consumo" class="menu-item" data-section="consumo">
+            <a href="#consumo" class="menu-item" data-section="consumo" aria-label="Consumo" tabindex="0">
               <i class="fas fa-chart-line"></i>
               <span>Consumo</span>
             </a>
-            <a href="#desperdicio" class="menu-item" data-section="desperdicio">
+            <a href="#desperdicio" class="menu-item" data-section="desperdicio" aria-label="Desperdício" tabindex="0">
               <i class="fas fa-trash-alt"></i>
               <span>Desperdício</span>
             </a>
-            <a href="#estoque" class="menu-item" data-section="estoque">
+            <a href="#estoque" class="menu-item" data-section="estoque" aria-label="Estoque" tabindex="0">
               <i class="fas fa-boxes"></i>
               <span>Estoque</span>
             </a>
-            <a href="#eventos" class="menu-item" data-section="eventos">
+            <a href="#eventos" class="menu-item" data-section="eventos" aria-label="Eventos" tabindex="0">
               <i class="fas fa-calendar-alt"></i>
               <span>Eventos</span>
             </a>
-            <a href="#relatorios" class="menu-item" data-section="relatorios">
+            <a href="#relatorios" class="menu-item" data-section="relatorios" aria-label="Relatórios" tabindex="0">
               <i class="fas fa-file-alt"></i>
               <span>Relatórios</span>
             </a>
@@ -68,7 +68,7 @@ class InteractiveDashboard {
             <div class="top-actions">
               <div class="date-filter">
                 <div class="date-range-picker">
-                  <button id="date-range-toggle" class="btn btn-outline-primary">
+                  <button id="date-range-toggle" class="btn btn-outline-primary" aria-label="Selecionar período" tabindex="0">
                     <i class="fas fa-calendar"></i>
                     <span id="current-date-range">Últimos 30 dias</span>
                     <i class="fas fa-chevron-down"></i>
@@ -96,13 +96,13 @@ class InteractiveDashboard {
                 </div>
               </div>
               <div class="actions">
-                <button id="refresh-data" class="btn btn-outline-secondary" title="Atualizar dados">
+                <button id="refresh-data" class="btn btn-outline-secondary" title="Atualizar dados" aria-label="Atualizar dados" tabindex="0">
                   <i class="fas fa-sync-alt"></i>
                 </button>
-                <button id="export-data" class="btn btn-outline-secondary" title="Exportar dados">
+                <button id="export-data" class="btn btn-outline-secondary" title="Exportar dados" aria-label="Exportar dados" tabindex="0">
                   <i class="fas fa-download"></i>
                 </button>
-                <button id="settings" class="btn btn-outline-secondary" title="Configurações">
+                <button id="settings" class="btn btn-outline-secondary" title="Configurações" aria-label="Configurações" tabindex="0">
                   <i class="fas fa-cog"></i>
                 </button>
               </div>
@@ -276,11 +276,11 @@ class InteractiveDashboard {
       </div>
       
       <!-- Modal para visualização expandida -->
-      <div id="expand-modal" class="expand-modal" style="display: none;">
+      <div id="expand-modal" class="expand-modal" style="display: none;" role="dialog" aria-modal="true" tabindex="-1">
         <div class="expand-modal-content">
           <div class="expand-modal-header">
             <h3 id="expand-modal-title">Título</h3>
-            <button id="close-expand-modal" class="close-modal">&times;</button>
+            <button id="close-expand-modal" class="close-modal" aria-label="Fechar">&times;</button>
           </div>
           <div class="expand-modal-body">
             <div id="expand-modal-content"></div>
@@ -612,6 +612,9 @@ class InteractiveDashboard {
       return;
     }
     
+    // Adicionar tooltip explicativo
+    chartContainer.title = 'Gráfico de barras mostrando o consumo total de produtos por andar.';
+    
     // Destruir gráfico anterior se existir
     if (this.charts && this.charts.consumoAndar) {
       this.charts.consumoAndar.destroy();
@@ -685,6 +688,9 @@ class InteractiveDashboard {
       return;
     }
     
+    // Adicionar tooltip explicativo
+    chartContainer.title = 'Gráfico de pizza mostrando o consumo de cada produto no período.';
+    
     // Destruir gráfico anterior se existir
     if (this.charts && this.charts.consumoProduto) {
       this.charts.consumoProduto.destroy();
@@ -748,6 +754,9 @@ class InteractiveDashboard {
   
   renderRankingBanheiros(tipo, data) {
     const rankingList = this.container.querySelector(`#ranking-${tipo} .ranking-list`);
+    
+    // Adicionar tooltip explicativo
+    rankingList.title = 'Ranking dos banheiros com maior consumo de produtos.';
     
     // Gerar HTML para cada item do ranking
     let html = '';
@@ -1032,6 +1041,15 @@ class InteractiveDashboard {
     
     // Mostrar modal
     modal.style.display = 'flex';
+    modal.focus(); // Foco automático
+    // Fechar por ESC
+    const escHandler = (e) => {
+      if (e.key === 'Escape') {
+        this.closeExpandModal();
+        document.removeEventListener('keydown', escHandler);
+      }
+    };
+    document.addEventListener('keydown', escHandler);
     
     // Renderizar conteúdo expandido
     if (targetId === 'consumo-andar-card') {
@@ -1338,6 +1356,21 @@ class InteractiveDashboard {
     setTimeout(() => {
       document.body.removeChild(errorDiv);
     }, 5000);
+  }
+  
+  async fetchRankingDesperdicioBanheiros() {
+    const response = await fetch('/api/dashboard/ranking-desperdicio-banheiros');
+    return await response.json();
+  }
+
+  async fetchProdutosMaisDesperdicados() {
+    const response = await fetch('/api/dashboard/produtos-mais-desperdicados');
+    return await response.json();
+  }
+
+  async fetchConsumoEDesperdicioPorPeriodo(periodo = 30) {
+    const response = await fetch(`/api/dashboard/consumo-e-desperdicio-por-periodo?periodo=${periodo}`);
+    return await response.json();
   }
 }
 

@@ -6,13 +6,14 @@ from enum import Enum
 class TipoMovimentacao(Enum):
     ENTRADA = 'entrada'
     SAIDA = 'saida'
+    DESPERDICIO = 'desperdicio'  # Novo tipo para desperdício
 
 class Movimentacao(db.Model):
-    """Modelo para as movimentações de entrada e saída no estoque"""
+    """Modelo para as movimentações de entrada, saída e desperdício no estoque"""
     __tablename__ = 'movimentacoes'
     
     id = db.Column(db.Integer, primary_key=True)
-    tipo = db.Column(db.String(10), nullable=False)  # 'entrada' ou 'saida'
+    tipo = db.Column(db.String(15), nullable=False)  # 'entrada', 'saida' ou 'desperdicio'
     quantidade = db.Column(db.Integer, nullable=False)
     data_movimentacao = db.Column(db.DateTime, default=datetime.now)
     motivo = db.Column(db.String(200), nullable=True)
@@ -22,6 +23,7 @@ class Movimentacao(db.Model):
     
     # Relacionamentos
     item_id = db.Column(db.Integer, db.ForeignKey('itens.id'), nullable=False)
+    item = db.relationship('Item', backref='movimentacoes')
     
     # Relacionamento opcional com local de origem/destino
     local_origem_id = db.Column(db.Integer, db.ForeignKey('locais.id'), nullable=True)
