@@ -34,6 +34,13 @@ def index():
 def static_files(path):
     return send_from_directory('static', path)
 
+# ROTA TEMPORÁRIA PARA POPULAR O BANCO NO RENDER
+# Remova após popular os dados!
+@app.route('/popular-dados')
+def popular_dados():
+    import popular_banco
+    return 'Banco populado com dados fictícios! (Remova esta rota após o uso por segurança)'
+
 if __name__ == '__main__':
     # Para desenvolvimento local
     app.run(host='0.0.0.0', port=5000, debug=True)
